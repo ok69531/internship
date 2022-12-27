@@ -94,8 +94,8 @@ def eval(model, device, criterion, loader):
         pred = pred_prob.argmax(dim=1, keepdim=True)
         correct += pred.eq(target.view_as(pred)).sum().item()
     
-    test_loss /= len(test_loader.dataset)
-    acc = correct/len(test_loader.dataset) * 100
+    test_loss /= len(loader.dataset)
+    acc = correct/len(loader.dataset) * 100
     
     return test_loss, acc
     
