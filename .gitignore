@@ -13,3 +13,4 @@ __pycache__/
 SLURM*
 MNIST
 wandb
+tmp*
