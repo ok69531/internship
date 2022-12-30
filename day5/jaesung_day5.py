@@ -117,3 +117,5 @@ for epoch in range(1000):
 
 
 # class는 사용하기 위해서 먼저 선언이 필수!!!!!!!!!!!
+
+# test
