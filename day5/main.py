@@ -51,4 +51,6 @@ class Logit(nn.Module):
 
 # 3. Logit layer를 이용한 LogisticRegression 모형 작성
 
-# 4. 학습 코드 작성
+# 4. 학습 코드 작성4
+
+#test
