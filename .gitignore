@@ -9,5 +9,7 @@ __pycache__/
 .cache
 .pytest_cache
 .DS_Store
+.sh
+SLURM*
 MNIST
 wandb
