@@ -14,3 +14,5 @@
 # cd 원하는경로
 # sbatch --job-name=name --partition=cpu run_slurm.sh
 # sbatch --job-name=name --partition=gpu1 --gres=gpu:rtx3090:1 run_slurm.sh
+
+# test
