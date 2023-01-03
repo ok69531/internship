@@ -29,15 +29,6 @@ else:
     device = torch.device('cpu')
 
 
-# iris data generation
-seed = 0
-torch.manual_seed(seed)
-
-iris = load_iris()
-target_iris = torch.Tensor(iris.target)
-data_iris = torch.Tensor(iris.data)
-x_train, x_test, y_train, y_test = train_test_split(data_iris, target_iris, test_size = 0.2, random_state = seed)
-
 
 # binary data generation
 seed = 0
@@ -56,17 +47,31 @@ y = torch.bernoulli(torch.sigmoid(x @ beta)).to(torch.float32)
 
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state = seed)
 
+
+# iris data generation
+seed = 0
+torch.manual_seed(seed)
+
+iris = load_iris()
+target_iris = torch.Tensor(iris.target)
+data_iris = torch.Tensor(iris.data)
+x_train, x_test, y_train, y_test = train_test_split(data_iris, target_iris, test_size = 0.2, random_state = seed)
+
+
+
 # 1. Linear layer 작성
 class Linear(nn.Module):
     def __init__(self, input_size, output_size):
         super(Linear, self).__init__()
         self.input_size = input_size
         self.output_size = output_size
-        self.linear = nn.Linear(input_size, output_size)
+        self.w = nn.Parameter(torch.randn(input_size, output_size))
+        self.b = nn.Parameter(torch.zeros(output_size))
         
 
+
     def forward(self, x):
-        return(self.linear(x))
+        return x @ self.w + self.b
 
 # 2. Logistic regression model 작성
 class LogisticRegression(nn.Module):
@@ -81,12 +86,11 @@ class LogisticRegression(nn.Module):
         prob = self.softmax(self.layer(x))
         return prob
 
-#size 일반화
 input_size = x_train.size(1)
-output_size = y_train.unique().size(0)
+output_size = len(y_train.unique())
 model = LogisticRegression(input_size, output_size)
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.05)
+optimizer = optim.Adam(model.parameters(), lr=0.1)
 
 # 3. 모델 학습
 def train(model, criterion, train_data, target):
