@@ -53,10 +53,29 @@ class Linear(nn.Module):
         super(Linear, self).__init__()
         self.i_size = i_size
         self.o_size = o_size
-        self.linear = nn.Linear(i_size, o_size)
-    
+
+        # Linear모듈을 사용하지 않고, 직접 구현
+        self.weight = nn.Parameter(torch.Tensor(i_size, o_size), requires_grad=True)
+        # iris data의 경우 weight의 size가 4x3이 됨
+        # requires_grad = True로 설정하면, 해당 파라미터를 업데이트 할 수 있게끔 함
+        # requires_grad = False로 설정하면, 해당 파라미터 업데이트 못하게 함
+        # 위와 비슷한 기능에는 detach와 no_grad 함수가 있음
+        # detach는 모델 간에 gradient가 흐르지 않게 해서 특정 모델만 학습시킬 때 사용
+        # no_grad도 마찬가지로 with torch.no_grad(): 라 하고 그 안에 모델을 넣으면 그 모델에 대해서는 학습 시키지 말라는 의미
+        self.bias = nn.Parameter(torch.Tensor(o_size), requires_grad=True)
+        # iris data의 경우 bias의 size가 3이 됨
+        # 이 때 차원수가 x*w는 120x3 b는 3이라서 계산이 안되는데 broadcasting으로 인해 자동으로 차원수를 맞춰서 계산해줌 
+
     def forward(self, x):
-        return self.linear(x)
+        return x @ self.weight + self.bias
+
+# Linear layer가 잘 작동하는지 확인
+print(x_train)
+print(x_train.size(1))
+print(len(y_train.unique()))
+linear = Linear(x_train.size(1), len(y_train.unique()))
+lin_x = linear(x_train)
+print(lin_x.shape)
 
 
 # 2. 앞서 만든 Linear layer를 이용하여 Logistic regression model 작성
