@@ -275,12 +275,29 @@ def eval(model, criterion, data_loader):
 model = RNN(113, n_hidden, 1)
 learning_rate = 0.01
 criterion = nn.MSELoss()
-
+best_valid=  float('inf')
+patient=0
 
 for epoch in range(1000):
     train(model, criterion, train_loader)
     
+    train_loss=  eval(model, criterion, train_loader)
     val_loss=  eval(model, criterion, val_loader)
-    test_loss=  eval(model, criterion, test_loader)
 
-    print(f'epoch: {epoch}, val_loss: {val_loss}, test_loss: {test_loss}')
+    print(f'epoch: {epoch}, train_loss: {train_loss}, val_loss: {val_loss}')
+    if val_loss<=best_valid:
+        torch.save(model, './assets/model/best_rnn.pth')
+        patient=0
+        best_valid=val_loss
+    else:
+        patient+=1
+        if patient>=10:
+            break
+
+
+
+
+
+
+test_loss = eval(model, criterion, test_loader)
+print(f"test loss: {test_loss}")
