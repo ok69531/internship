@@ -11,7 +11,7 @@ import random
 
 # data import
 
-data = pd.read_excel("수자원.xlsx", sheet_name=0)
+data = pd.read_excel(r"C:\winter\data\수자원.xlsx", sheet_name=0)
 plt.figure(figsize=(20,5))
 plt.plot(range(len(data)), data["저수량"])
 
@@ -51,8 +51,8 @@ train.head()
 from sklearn.preprocessing import MinMaxScaler
 min_max_scaler = MinMaxScaler()
 
-train.iloc[:, 0:15] = min_max_scaler.fit_transform(train.iloc[:,0:15])
-test.iloc[:, 0:15] = min_max_scaler.transform(test.iloc[:,0:15])
+train.iloc[:, 0:16] = min_max_scaler.fit_transform(train.iloc[:,0:16])
+test.iloc[:, 0:16] = min_max_scaler.transform(test.iloc[:,0:16])
 
 
 
@@ -184,10 +184,10 @@ class lstm_encoder_decoder(nn.Module):
 # Train
 import torch.optim as optim
 
-model = lstm_encoder_decoder(input_size=22, hidden_size=36)
+model = lstm_encoder_decoder(input_size=22, hidden_size=64)
 
 learning_rate=0.01
-epoch = 1000
+epoch = 2
 optimizer = optim.Adam(model.parameters(), lr = learning_rate)
 criterion = nn.MSELoss()
 best_valid=  float('inf')
@@ -213,7 +213,7 @@ with tqdm(range(epoch)) as tr:
 
         tr.set_postfix(loss="{0:.5f}".format(total_loss/len(train_loader)))
         if loss<=best_valid:
-            torch.save(model, 'best_seq.pth')
+            torch.save(model, 'C:\winter\internship-1\day8/assets/model/best_seq.pth')
             patient=0
             best_valid=loss
         else:
@@ -221,31 +221,54 @@ with tqdm(range(epoch)) as tr:
             if patient>=10:
                 break
 
+model = torch.load(r'C:\winter\my_practice\day11\best_seq.pth')
+model.eval()
+
 pred_input = torch.tensor(train.iloc[-730:].values).float()
-predict = model.predict(pred_input, target_len=ow)[-1][:,0:15].detach().numpy()
+predict = model.predict(pred_input, target_len=ow)[-1][:,0:16].detach().numpy()
 
 
-real = test.iloc[:,0:15].to_numpy()
+real = test.iloc[:,0:16].to_numpy()
 
 
 predict = min_max_scaler.inverse_transform(predict)
 real = min_max_scaler.inverse_transform(real)
 
+predict = predict[:,0]
 real = pd.DataFrame(real).iloc[:,0].to_numpy()
 
+dates = pd.date_range('2019-09-01','2020-08-31')
+dates = dates.drop('2020-06-30')
 
+final = pd.DataFrame({'predict' : predict, 'real' : real})
+final.index = dates
+final
 
-x_tick = np.array(list(range(365)))
+predict.min()
+predict.max()
+real.min()
+real.max()
 
+#x_tick = np.array(list(range(365)))
+#plt.figure(figsize=(20,5))
+#plt.plot(x_tick, real, label="real") 
+#plt.plot(x_tick, predict, label="predict")
 
+#plt.title("Test Set")
+#plt.legend()
+#plt.show()
 
-plt.figure(figsize=(20,5))
-plt.plot(x_tick, real, label="real") 
-plt.plot(x_tick, predict, label="predict")
+# Visualization
 
-plt.title("Test Set")
+plt.figure(figsize=(10,5))
+plt.plot(final['real'], label="real")
+plt.plot(final['predict'], label="predict")
+
+plt.ylim(300000, 1700000)
+plt.title("Prediction")
 plt.legend()
 plt.show()
+
 
 
 def MAPEval(y_pred, y_true):
