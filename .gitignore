@@ -16,3 +16,5 @@ wandb
 tmp*
 trash
 assets
+*.csv
+*.xlsx
