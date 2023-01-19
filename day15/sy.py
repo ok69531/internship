@@ -201,6 +201,7 @@ nhead = 2
 nlayers = 2
 dropout = 0.1
 
+
 model = TFModel(num_feat, iw, ow, d_model, nhead, nlayers, dropout).to(device)
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
@@ -228,6 +229,7 @@ for i in progress:
         optimizer.step()
         batchloss += loss
     progress.set_description("loss: {:0.6f}".format(batchloss.cpu().item() / len(train_loader)))
+# torch.save(model.state_dict(), 'model.pth')
 
 
 def evaluate():
@@ -256,4 +258,3 @@ plt.plot(df.저수율[num_test:].values, label="real")
 plt.plot(result, label="pred")
 plt.legend()
 plt.show()
-# plt.savefig('sy_water_pred.png')
