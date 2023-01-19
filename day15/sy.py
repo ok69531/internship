@@ -34,7 +34,7 @@ scaler = MinMaxScaler()
 feature = scaler.fit_transform(feature)
 target = feature[:, 0]
 
-num_test = -120
+num_test = -ow
 x_train = feature[:num_test]
 x_test = feature[num_test:]
 y_train = target[:num_test]
@@ -234,21 +234,25 @@ def evaluate():
     model.eval()
     
     inputs = torch.tensor(x_train[-iw:]).reshape(1,-1,num_feat).to(torch.float32).to(device)
-    src_mask = model.generate_square_subsequent_mask(inputs.shape[0]).to(device)
+    src_mask = model.generate_square_subsequent_mask(inputs.shape[1]).to(device)
     pred = model(inputs, src_mask)
     
-    return pred.squeeze().detach().cpu().numpy()
+    return pred.detach().cpu().numpy()
 
 
-x_test[0]
-model()
+def invTransform(scaler, data, colName, colNames):
+    dummy = pd.DataFrame(np.zeros((len(data), len(colNames))), columns=colNames)
+    dummy[colName] = data
+    dummy = pd.DataFrame(scaler.inverse_transform(dummy), columns=colNames)
+    return dummy[colName].values
+
+
 result = evaluate()
-result = scaler.inverse_transform(result)[0]
-real = scaler.inverse_transform(y_test.reshape(-1, 1)).reshape(-1)
+result = invTransform(scaler, result.squeeze(), '저수율', df.columns[2:])
 
 
-plt.figure(figsize=(20,5))
-plt.plot(real, label="real")
-plt.plot(result, label="predict")
+plt.figure(figsize=(10,5))
+plt.plot(df.저수율[num_test:].values, label="real")
+plt.plot(result, label="pred")
 plt.legend()
 plt.show()
