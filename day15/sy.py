@@ -214,7 +214,7 @@ train_loader = DataLoader(train_dataset, batch_size=64)
 # inputs.size()
 # outputs.size()
 
-epoch = 10
+epoch = 100
 model.train()
 progress = tqdm(range(epoch))
 for i in progress:
@@ -230,16 +230,18 @@ for i in progress:
     progress.set_description("loss: {:0.6f}".format(batchloss.cpu().item() / len(train_loader)))
 
 
-# def evaluate():
-#     model.eval()
+def evaluate():
+    model.eval()
     
-#     inputs = torch.tensor(x_test.reshape(1,-1,num_feat)).to(torch.float32).to(device)
-#     src_mask = model.generate_square_subsequent_mask(inputs.shape[1]).to(device)
-#     pred = model(inputs, src_mask)
+    inputs = torch.tensor(x_train[-iw:]).reshape(1,-1,num_feat).to(torch.float32).to(device)
+    src_mask = model.generate_square_subsequent_mask(inputs.shape[0]).to(device)
+    pred = model(inputs, src_mask)
     
-#     return pred.detach().cpu()
+    return pred.squeeze().detach().cpu().numpy()
 
 
+x_test[0]
+model()
 result = evaluate()
 result = scaler.inverse_transform(result)[0]
 real = scaler.inverse_transform(y_test.reshape(-1, 1)).reshape(-1)
